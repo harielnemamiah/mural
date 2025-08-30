@@ -2137,51 +2137,66 @@
 
             async exportAllToPdf() {
                 const doc = new jsPDF();
-                let y = 20;
                 const pageHeight = doc.internal.pageSize.height;
+                const pageWidth = doc.internal.pageSize.width;
+                const margin = 10;
+                const maxWidth = pageWidth - (margin * 2);
+                let y = 20;
 
                 doc.setFont('helvetica');
                 doc.setFontSize(22);
-                doc.text(`Mural de Poemas - Perfil: ${this.currentProfile}`, 10, y);
+                doc.text(`Mural de Poemas - Perfil: ${this.currentProfile}`, margin, y);
                 y += 10;
                 doc.setFontSize(12);
-                doc.text(`Data da Exportação: ${this.formatDate(new Date())}`, 10, y);
+                doc.text(`Data da Exportação: ${this.formatDate(new Date())}`, margin, y);
                 y += 20;
 
                 for (const poem of this.poems) {
-                    // CÁLCULO DE ESPAÇO NECESSÁRIO
-                    const titleLines = doc.splitTextToSize(poem.title, 180);
-                    const titleHeight = titleLines.length * 7;
-                    
-                    const contentLines = doc.splitTextToSize(poem.content, 180);
-                    const contentHeight = contentLines.length * 6;
-                    
-                    const metaHeight = 10;
                     const spacing = 10;
-                    
-                    const totalHeight = titleHeight + contentHeight + metaHeight + (3 * spacing);
-                    
-                    // Verifica se precisa de nova página
-                    if (y + totalHeight > pageHeight) {
+
+                    // Check for page break before starting a new poem
+                    // This is a rough estimate, a more robust check would be better
+                    if (y > pageHeight - 60) { // 60 is a safe margin for a new poem
                         doc.addPage();
                         y = 20;
                     }
                     
                     doc.setFontSize(16);
                     doc.setFont('helvetica', 'bold');
-                    doc.text(titleLines, 10, y);
-                    y += titleHeight + spacing;
+                    const titleLines = doc.splitTextToSize(poem.title, maxWidth);
+                    doc.text(titleLines, margin, y);
+                    y += (titleLines.length * 7) + spacing;
 
                     doc.setFontSize(12);
                     doc.setFont('helvetica', 'normal');
-                    doc.text(contentLines, 10, y);
-                    y += contentHeight + spacing;
+
+                    const poemLines = poem.content.split('\n');
+                    for (const line of poemLines) {
+                        const linesToPrint = doc.splitTextToSize(line, maxWidth);
+                        for (const singleLine of linesToPrint) {
+                            if (y > pageHeight - 20) {
+                                doc.addPage();
+                                y = 20;
+                            }
+                            doc.text(singleLine, margin, y);
+                            y += 6; // Line height for font size 12
+                        }
+                    }
+                    y += spacing;
                     
+                    if (y > pageHeight - 20) {
+                        doc.addPage();
+                        y = 20;
+                    }
                     doc.setFontSize(10);
-                    doc.text(`Aba: ${poem.type} | Data: ${this.formatDate(poem.date)}`, 10, y);
-                    y += metaHeight + spacing;
+                    doc.text(`Aba: ${poem.type} | Data: ${this.formatDate(poem.date)}`, margin, y);
+                    y += 10 + spacing;
                     
-                    doc.line(10, y, 200, y);
+                    if (y > pageHeight - 20) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                    doc.line(margin, y, pageWidth - margin, y);
                     y += spacing;
                 }
 
@@ -2197,52 +2212,65 @@
                 }
 
                 const doc = new jsPDF();
-                let y = 20;
                 const pageHeight = doc.internal.pageSize.height;
+                const pageWidth = doc.internal.pageSize.width;
+                const margin = 10;
+                const maxWidth = pageWidth - (margin * 2);
+                let y = 20;
 
 
                 doc.setFont('helvetica');
                 doc.setFontSize(22);
-                doc.text(`Aba: ${tabName} - Perfil: ${this.currentProfile}`, 10, y);
+                doc.text(`Aba: ${tabName} - Perfil: ${this.currentProfile}`, margin, y);
                 y += 10;
                 doc.setFontSize(12);
-                doc.text(`Data da Exportação: ${this.formatDate(new Date())}`, 10, y);
+                doc.text(`Data da Exportação: ${this.formatDate(new Date())}`, margin, y);
                 y += 20;
 
                 for (const poem of poemsToExport) {
-                    // CÁLCULO DE ESPAÇO NECESSÁRIO
-                    const titleLines = doc.splitTextToSize(poem.title, 180);
-                    const titleHeight = titleLines.length * 7;
-                    
-                    const contentLines = doc.splitTextToSize(poem.content, 180);
-                    const contentHeight = contentLines.length * 6;
-                    
-                    const metaHeight = 10;
                     const spacing = 10;
-                    
-                    const totalHeight = titleHeight + contentHeight + metaHeight + (3 * spacing);
-                    
-                    // Verifica se precisa de nova página
-                    if (y + totalHeight > pageHeight) {
+
+                    if (y > pageHeight - 60) { // Safe margin
                         doc.addPage();
                         y = 20;
                     }
                     
                     doc.setFontSize(16);
                     doc.setFont('helvetica', 'bold');
-                    doc.text(titleLines, 10, y);
-                    y += titleHeight + spacing;
+                    const titleLines = doc.splitTextToSize(poem.title, maxWidth);
+                    doc.text(titleLines, margin, y);
+                    y += (titleLines.length * 7) + spacing;
 
                     doc.setFontSize(12);
                     doc.setFont('helvetica', 'normal');
-                    doc.text(contentLines, 10, y);
-                    y += contentHeight + spacing;
                     
+                    const poemLines = poem.content.split('\n');
+                    for (const line of poemLines) {
+                        const linesToPrint = doc.splitTextToSize(line, maxWidth);
+                        for (const singleLine of linesToPrint) {
+                            if (y > pageHeight - 20) {
+                                doc.addPage();
+                                y = 20;
+                            }
+                            doc.text(singleLine, margin, y);
+                            y += 6; // Line height for font size 12
+                        }
+                    }
+                    y += spacing;
+
+                    if (y > pageHeight - 20) {
+                        doc.addPage();
+                        y = 20;
+                    }
                     doc.setFontSize(10);
-                    doc.text(`Data: ${this.formatDate(poem.date)}`, 10, y);
-                    y += metaHeight + spacing;
+                    doc.text(`Data: ${this.formatDate(poem.date)}`, margin, y);
+                    y += 10 + spacing;
                     
-                    doc.line(10, y, 200, y);
+                    if (y > pageHeight - 20) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                    doc.line(margin, y, pageWidth - margin, y);
                     y += spacing;
                 }
 
@@ -2349,30 +2377,36 @@
 
                 const doc = new jsPDF();
                 const pageHeight = doc.internal.pageSize.height;
+                const pageWidth = doc.internal.pageSize.width;
+                const margin = 10;
+                const maxWidth = pageWidth - (margin * 2);
                 let y = 20;
 
                 doc.setFont('helvetica');
                 doc.setFontSize(22);
-                const titleLines = doc.splitTextToSize(poem.title, 180);
-                doc.text(titleLines, 10, y);
+                const titleLines = doc.splitTextToSize(poem.title, maxWidth);
+                doc.text(titleLines, margin, y);
                 y += (titleLines.length * 7);
 
                 doc.setFontSize(12);
-                doc.text(`Aba: ${poem.type}`, 10, y + 5);
-                doc.text(`Data: ${this.formatDate(poem.date)}`, 10, y + 12);
-                doc.line(10, y + 15, 200, y + 15);
+                doc.text(`Aba: ${poem.type}`, margin, y + 5);
+                doc.text(`Data: ${this.formatDate(poem.date)}`, margin, y + 12);
+                doc.line(margin, y + 15, pageWidth - margin, y + 15);
                 y += 25;
 
-                const contentLines = doc.splitTextToSize(poem.content, 180);
                 doc.setFontSize(14);
-                
-                for (const line of contentLines) {
-                    if (y > pageHeight - 20) {
-                        doc.addPage();
-                        y = 20;
+                const poemLines = poem.content.split('\n');
+
+                for (const line of poemLines) {
+                    const linesToPrint = doc.splitTextToSize(line, maxWidth);
+                    for (const singleLine of linesToPrint) {
+                        if (y > pageHeight - 20) {
+                            doc.addPage();
+                            y = 20;
+                        }
+                        doc.text(singleLine, margin, y);
+                        y += 7; // Line height - adjusted for font size 14
                     }
-                    doc.text(line, 10, y);
-                    y += 6; // Line height
                 }
                 
                 doc.save(`${poem.title}.pdf`);
@@ -2408,26 +2442,41 @@
 
             saveDraft() {
                 const id = document.getElementById('poem-id').value;
-                if (!id) return; // Não salva rascunhos de novos poemas, apenas edições
 
-                const poem = this.poems.find(p => p.id == id);
-                if (!poem) return;
-
-                const title = document.getElementById('title').value || this.truncateText(document.getElementById('content').value, 50);
                 const content = document.getElementById('content').value;
-                const type = document.getElementById('type').value;
-                const tags = document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-                const notes = document.getElementById('notes').value;
-                const date = document.getElementById('date').value;
-                const isDraft = document.getElementById('isDraft').checked;
+                const title = document.getElementById('title').value;
 
-                poem.title = title;
+                // Don't save if there's nothing to save
+                if (!title.trim() && !content.trim()) {
+                    return;
+                }
+
+                let poem;
+                if (id) {
+                    poem = this.poems.find(p => p.id == id);
+                    if (!poem) return; // Poem not found, something is wrong.
+                } else {
+                    // This is a new poem, create a draft for it.
+                    poem = {
+                        id: Date.now(),
+                        isFavorite: false,
+                        isDraft: true, // It must be a draft
+                        isPinned: false
+                    };
+                    this.poems.push(poem);
+                    document.getElementById('poem-id').value = poem.id;
+                    document.getElementById('isDraft').checked = true; // Visually update the toggle
+                    this.currentPoemId = poem.id;
+                }
+
+                // Update poem with all form fields
+                poem.title = document.getElementById('title').value || this.truncateText(document.getElementById('content').value, 50);
                 poem.content = content;
-                poem.type = type;
-                poem.tags = tags;
-                poem.notes = notes;
-                poem.date = date;
-                poem.isDraft = isDraft;
+                poem.type = document.getElementById('type').value;
+                poem.tags = document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+                poem.notes = document.getElementById('notes').value;
+                poem.date = document.getElementById('date').value;
+                poem.isDraft = document.getElementById('isDraft').checked;
 
                 this.saveProfiles();
             }
