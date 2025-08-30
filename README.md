@@ -1,4 +1,3 @@
-(https://github.com/user-attachments/files/22061484/V11.do.meu.bebe.4.2.-.ULTIMA.VERSAO.30-08.html)
 ]<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
